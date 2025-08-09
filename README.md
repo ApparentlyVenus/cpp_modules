@@ -4,7 +4,7 @@ A comprehensive collection of C++ programming exercises designed to introduce Ob
 
 ## 📚 Module Overview
 
-### Module 00 - Fundamentals
+### Module 00 - Fundamentals ✔️ 91/100
 **Topics:** Namespaces, classes, member functions, stdio streams, initialization lists, static, const, and basic C++ concepts
 
 This introductory module covers the essential building blocks of C++ programming:
