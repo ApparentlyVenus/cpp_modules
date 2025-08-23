@@ -1,16 +1,16 @@
 
-NAME = ma_b7eb_el_nef3a
+NAME = mesh_3am_le2e_internship
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 
-SRCS = AForm.cpp Bureaucrat.cpp main.cpp ShrubberyCreationForm.cpp \
+SRCS = Intern.cpp AForm.cpp Bureaucrat.cpp main.cpp ShrubberyCreationForm.cpp \
 		PresidentialPardonForm.cpp RobotomyRequestForm.cpp 
 
 OBJS = $(SRCS:.cpp=.o)
 
-HEADERS = Bureaucrat.hpp AForm.hpp ShrubberyCreationForm.hpp \
+HEADERS = Intern.hpp Bureaucrat.hpp AForm.hpp ShrubberyCreationForm.hpp \
 			PresidentialPardonForm.hpp RobotomyRequestForm.hpp
 
 all: $(NAME)
