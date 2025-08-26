@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 14:42:30 by odana             #+#    #+#             */
-/*   Updated: 2025/08/26 16:00:22 by odana            ###   ########.fr       */
+/*   Updated: 2025/08/26 16:10:36 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,15 @@ Base*   generate(void)
         case 2:
             std::cout << "Generated C" << std::endl;
             return (new C());
+        default:
+            std::cout << "Error Generating" << std::endl;
+            return (NULL);
     }
 }
 
 void    identify(Base *p)
 {
-    std::cout << "p: "; 
+    std::cout << "Object pointed to by p: "; 
     if (dynamic_cast<A*>(p))
         std::cout << "A" << std::endl;
     else if (dynamic_cast<B*>(p))
@@ -44,10 +47,11 @@ void    identify(Base *p)
 
 void    identify(Base &p)
 {
-    std::cout << "p: "; 
+    std::cout << "Object referenced by p: "; 
     try 
     {
         A& a = dynamic_cast<A &>(p);
+        (void)a;
         std::cout << "A" << std::endl;
         return ;
     }
@@ -55,6 +59,7 @@ void    identify(Base &p)
     try 
     {
         B& b = dynamic_cast<B &>(p);
+        (void)b;
         std::cout << "B" << std::endl;
         return ;
     }
@@ -62,6 +67,7 @@ void    identify(Base &p)
     try 
     {
         C& c = dynamic_cast<C &>(p);
+        (void)c;
         std::cout << "C" << std::endl;
         return ;
     }
@@ -73,12 +79,10 @@ void    identify(Base &p)
 
 int main()
 {
-    srand(time(0));
-   
-   Base* obj = generate();
-   identify(obj);
-   identify(*obj);
-   delete obj;
-   return 0;
-    return (0);
+    Base* obj = generate();
+    identify(obj);
+    identify(*obj);
+    
+    delete obj;
+    return (0); 
 }
