@@ -6,15 +6,9 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 15:59:47 by odana             #+#    #+#             */
-/*   Updated: 2025/08/28 21:33:58 by odana            ###   ########.fr       */
+/*   Updated: 2025/08/28 21:39:54 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "easyfind.hpp"
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <list>
 
 #include "easyfind.hpp"
 #include <iostream>
