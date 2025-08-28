@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 14:03:34 by odana             #+#    #+#             */
-/*   Updated: 2025/08/28 14:07:51 by odana            ###   ########.fr       */
+/*   Updated: 2025/08/28 14:21:59 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@ template<typename T, typename F>
 void    iter(T* arr, size_t n, F f)
 {
     for (size_t i = 0; i < n; i++)
-        f(array[i]);
+        f(arr[i]);
 }
 
 template<typename T, typename F>
 void    iter(const T* arr, size_t n, F f)
 {
     for (size_t i = 0; i < n; i++)
-        f(array[i]);
+        f(arr[i]);
 }
 
 #endif

@@ -6,14 +6,15 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 14:15:07 by odana             #+#    #+#             */
-/*   Updated: 2025/08/28 14:17:26 by odana            ###   ########.fr       */
+/*   Updated: 2025/08/28 14:21:52 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ARRAY_HPP
 # define ARRAY_HPP
 
-#include <cstddef>
+# include <cstddef>
+# include <exception>
 
 template<typename T>
 class Array
