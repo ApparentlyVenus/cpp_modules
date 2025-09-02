@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 14:22:26 by odana             #+#    #+#             */
-/*   Updated: 2025/09/01 14:26:40 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 16:31:07 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <exception>
 # include <ctime>
 # include <sys/time.h>
+# include <climits>
 
 class PmergeMe
 {
@@ -42,9 +43,9 @@ private:
     double _dequeTime;
     
     // Input Processing 
-    void parseAndValidateInput(int argc, char** argv);
-    bool isValidPositiveInteger(const std::string& str);
-    void checkForDuplicates();
+    void parseInput(int argc, char** argv);
+    bool isValidInteger(const std::string& str);
+    bool containsDuplicates();
     
     // Jacobsthal & Helper Functions
     std::vector<int> generateJacobsthalSequence(int maxSize);
