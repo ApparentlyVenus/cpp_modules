@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 17:37:42 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 19:08:58 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ PmergeMe& PmergeMe::operator=(const PmergeMe& other)
     return (*this);
 }
 
-PmergeMe::PmergeMe() {}
+PmergeMe::~PmergeMe() {}
 
 void    PmergeMe::processArguments(int argc, char** argv)
 {
@@ -49,7 +49,7 @@ void    PmergeMe::processArguments(int argc, char** argv)
 void    PmergeMe::parseInput(int argc, char** argv)
 {
     _inputNumbers.clear();
-    for (size_t i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
         std::string arg(argv[i]);
         if (!isValidInteger(arg))
@@ -75,7 +75,7 @@ bool    PmergeMe::isValidInteger(const std::string& arg)
             return (false);
     }
     std::istringstream iss(arg);
-    long long num;
+    long long num = 0;
     if ((!iss >> num) || !iss.eof())
         return (false);
     if (num <= 0 || num > INT_MAX)
@@ -127,6 +127,52 @@ void    PmergeMe::createPairsVector(const std::vector<int>& data,
     
 }
 
+void    PmergeMe::insertPendElementsVector(std::vector<int>& mainChain, const std::vector<int>& pendChain, 
+                int extraElement, bool hasExtra)
+{
+    if (pendChain.empty())
+    {
+        if (hasExtra)
+        {
+            int pos = binarySearchVector(mainChain, extraElement, 0, mainChain.size());
+            mainChain.insert(mainChain.begin() + pos, extraElement);
+        }
+        return;
+    }
+    
+    int totalPendSize;
+    if (hasExtra)
+        totalPendSize = pendChain.size() + 1;
+    else
+        totalPendSize = pendChain.size();
+    
+    std::vector<int> insertionOrder = createInsertionOrder(totalPendSize);
+    
+    std::vector<int> combinedPend = pendChain;
+    if (hasExtra)
+        combinedPend.push_back(extraElement);
+    
+    for (size_t i = 0; i < insertionOrder.size(); i++)
+    {
+        int pendIndex = insertionOrder[i] - 1; // 0 indexing
+        int value = combinedPend[pendIndex];
+        int searchRight = mainChain.size();
+        
+        // If not extra element, limit search to paired element's position
+        if (pendIndex < (int)pendChain.size()) {
+            // Find where the paired main element is
+            // Since main elements were inserted in order, the paired element
+            // for pendChain[pendIndex] should be around position pendIndex
+            searchRight = pendIndex + 1;
+            if (searchRight > (int)mainChain.size()) {
+                searchRight = mainChain.size();
+            }
+        }
+        int pos = binarySearchVector(mainChain, value, 0, searchRight);
+        mainChain.insert(mainChain.begin() + pos, value);
+    }
+}
+
 std::vector<int>    PmergeMe::recursiveSortVector(std::vector<int>& mainChain)
 {
     if (mainChain.size() <= 1)
@@ -140,10 +186,83 @@ std::vector<int>    PmergeMe::recursiveSortVector(std::vector<int>& mainChain)
     createPairsVector(mainChain, newMainChain, newPendChain, newExtraElement, newHasExtra);
     std::vector<int> sortedMain = recursiveSortVector(newMainChain);
 
-    // insert pend elements using jackobsthl (steps VI-IX)
-    // for now im just returning sorted main chain
+    insertPendElementsVector(sortedMain, newPendChain, newExtraElement, newHasExtra);
 
     return (sortedMain);
+}
+
+std::vector<int> PmergeMe::fordJohnsonVector(std::vector<int>& data) 
+{
+    if (data.size() <= 1)
+        return data;
+    
+    std::vector<int> mainChain, pendChain;
+    int extraElement;
+    bool hasExtra;
+    
+    createPairsVector(data, mainChain, pendChain, extraElement, hasExtra);
+
+    std::vector<int> sortedMain = recursiveSortVector(mainChain);
+    
+    insertPendElementsVector(sortedMain, pendChain, extraElement, hasExtra);
+    
+    return (sortedMain);
+}
+
+int PmergeMe::binarySearchVector(const std::vector<int>& container, int value, int left, int right) 
+{
+    while (left < right) 
+    {
+        int mid = left + (right - left) / 2;
+        if (container[mid] < value)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    return (left);
+}
+
+void PmergeMe::sortWithVector() 
+{
+    if (_inputNumbers.empty()) return;
+    
+    double startTime = getCurrentTime();
+    
+    std::vector<int> dataCopy = _inputNumbers;
+    _sortedVector = fordJohnsonVector(dataCopy);
+    
+    double endTime = getCurrentTime();
+    _vectorTime = endTime - startTime;
+}
+
+double PmergeMe::getCurrentTime() 
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec + tv.tv_usec / 1000000.0);
+}
+
+void PmergeMe::displayResults() 
+{
+    printSequence(_inputNumbers, "Before:");
+    printSequence(_sortedVector, "After:");
+    printTimingResults();
+}
+
+void PmergeMe::printSequence(const std::vector<int>& sequence, const std::string& label) 
+{
+    std::cout << label;
+    for (size_t i = 0; i < sequence.size() && i < 10; i++) 
+        std::cout << " " << sequence[i];
+    if (sequence.size() > 10)
+        std::cout << " [...]";
+    std::cout << std::endl;
+}
+
+void PmergeMe::printTimingResults()
+{
+    std::cout << "Time to process a range of " << _inputNumbers.size() 
+              << " elements with std::vector : " << _vectorTime << " us" << std::endl;
 }
 
 std::vector<int>    PmergeMe::generateJacobsthalSequence(int maxSize)

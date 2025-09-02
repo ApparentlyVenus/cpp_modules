@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 14:22:26 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 16:31:07 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 19:07:23 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,9 @@ public:
     
     void processArguments(int argc, char** argv);
     void displayResults();
-    
+    void sortWithDeque();
+    void sortWithVector();
+
 private:
     std::vector<int>    _inputNumbers;
     std::vector<int>    _sortedVector;
@@ -57,7 +59,6 @@ private:
     void printTimingResults();
     
     // FORD-JOHNSON ALGORITHM - VECTOR IMPLEMENTATION
-    void sortWithVector();
     std::vector<int> fordJohnsonVector(std::vector<int>& data);
     
     void createPairsVector(const std::vector<int>& data, 
@@ -83,7 +84,6 @@ private:
                                int position);
     
     // FORD-JOHNSON ALGORITHM - DEQUE IMPLEMENTATION
-    void sortWithDeque();
     std::deque<int> fordJohnsonDeque(std::deque<int>& data);
     
     void createPairsDeque(const std::deque<int>& data, 
