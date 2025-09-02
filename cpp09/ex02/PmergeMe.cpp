@@ -6,13 +6,13 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 19:08:58 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 20:11:34 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe() : _vectorTime(0.0), _dequeTime(0.0) {}
+PmergeMe::PmergeMe() : _vectorTime(0.0), _dequeTime(0.0), _vectorComparisons(0), _dequeComparisons(0) {}
 
 PmergeMe::PmergeMe(const PmergeMe& other)
     :   _inputNumbers(other._inputNumbers),
@@ -67,16 +67,13 @@ bool    PmergeMe::isValidInteger(const std::string& arg)
 {
     if (arg.empty())
         return (false);
+        
     if (arg.length() > 1 && arg[0] == '0')
         return (false);
-    for (size_t i = 0; i < arg.length(); i++)
-    {
-        if (!std::isdigit(arg[i]))
-            return (false);
-    }
+    
     std::istringstream iss(arg);
-    long long num = 0;
-    if ((!iss >> num) || !iss.eof())
+    long long num;
+    if (!(iss >> num) || !iss.eof())
         return (false);
     if (num <= 0 || num > INT_MAX)
         return (false);
@@ -214,6 +211,7 @@ int PmergeMe::binarySearchVector(const std::vector<int>& container, int value, i
     while (left < right) 
     {
         int mid = left + (right - left) / 2;
+        _vectorComparisons++;
         if (container[mid] < value)
             left = mid + 1;
         else
@@ -252,17 +250,16 @@ void PmergeMe::displayResults()
 void PmergeMe::printSequence(const std::vector<int>& sequence, const std::string& label) 
 {
     std::cout << label;
-    for (size_t i = 0; i < sequence.size() && i < 10; i++) 
+    for (size_t i = 0; i < sequence.size(); i++) 
         std::cout << " " << sequence[i];
-    if (sequence.size() > 10)
-        std::cout << " [...]";
     std::cout << std::endl;
 }
 
 void PmergeMe::printTimingResults()
 {
-    std::cout << "Time to process a range of " << _inputNumbers.size() 
+    std::cout << std::fixed << std::setprecision(7) << "Time to process a range of " << _inputNumbers.size() 
               << " elements with std::vector : " << _vectorTime << " us" << std::endl;
+    std::cout << "Number of comparisons for std::vector: " << _vectorComparisons << std::endl;
 }
 
 std::vector<int>    PmergeMe::generateJacobsthalSequence(int maxSize)

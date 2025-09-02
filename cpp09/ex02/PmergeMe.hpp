@@ -6,13 +6,14 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 14:22:26 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 19:07:23 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 19:29:51 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PMERGEME_HPP
 # define PMERGEME_HPP
 
+# include <iomanip>
 # include <iostream>
 # include <vector>
 # include <deque>
@@ -43,6 +44,9 @@ private:
     
     double _vectorTime;
     double _dequeTime;
+
+    int _vectorComparisons;
+    int _dequeComparisons;
     
     // Input Processing 
     void parseInput(int argc, char** argv);
