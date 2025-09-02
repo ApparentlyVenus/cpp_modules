@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 17:21:24 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/02 17:37:42 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,16 +153,15 @@ std::vector<int>    PmergeMe::generateJacobsthalSequence(int maxSize)
     if (maxSize <= 0)
         return (jacobsthal);
 
-    // Sequence starts with 0, 1, 1..
-    int prev1 = 1;
-    int prev2 = 0;
-    
-    // Skip 0 and Push 1 
     jacobsthal.push_back(1);
     if (maxSize == 1)
         return (jacobsthal);
         
-    jacobsthal.push_back(2);
+    // Sequence starts with 0, 1, 1.. we have to skip the first 0 and 1
+    // Treat it as if we are starting with J(3)
+    int prev2 = 1;
+    int prev1 = 1;
+    
     while (true)
     {
         // Formula: J(n) = J(n -1) + 2 * J(n - 2)
@@ -185,4 +184,27 @@ std::vector<int> PmergeMe::createInsertionOrder(int pendSize)
             order.push_back(1);
         return (order);
     }
+    
+    std::vector<int>    jacobsthal = generateJacobsthalSequence(pendSize);
+    std::vector<int>    insertionOrder;
+
+    // rule: insert first element 
+    insertionOrder.push_back(1);
+    
+    size_t  jacobIndex = 1;
+    int     previousJacob = 1;
+    
+    while (jacobIndex < jacobsthal.size())
+    {
+        int currentJacob = jacobsthal[jacobIndex];
+        for (int j = currentJacob; j > previousJacob; j--)
+            insertionOrder.push_back(j);
+        previousJacob = currentJacob;
+        jacobIndex++;
+        if (currentJacob >= pendSize)
+            break;
+    }
+    for (int i = previousJacob + 1; i <= pendSize; i++)
+        insertionOrder.push_back(1);
+    return (insertionOrder);
 }
