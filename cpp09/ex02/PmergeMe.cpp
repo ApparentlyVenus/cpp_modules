@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 20:11:34 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/04 14:21:40 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,10 @@ void    PmergeMe::createPairsVector(const std::vector<int>& data,
     }
     for (size_t i = 0; i < pairCount; i++)
     {
-        int first = data[i * 2];
-        int second = data[i * 2 + 1];
+        int first = data[i];
+        int second = data[i + pairCount];
+
+        _vectorComparisons++;
         if (first > second)
         {
             mainChain.push_back(first);
@@ -149,22 +151,34 @@ void    PmergeMe::insertPendElementsVector(std::vector<int>& mainChain, const st
     if (hasExtra)
         combinedPend.push_back(extraElement);
     
+    // generate search area limits using 2^n - 1 formula
+    std::vector<int> searchLimits;
+    searchLimits.push_back(1);  // After inserting first element, search area is 1
+    while (searchLimits.size() < insertionOrder.size())
+    {
+        int limit = ((searchLimits.back() + 1) * 2) - 1;  // 2^n - 1 formula
+        searchLimits.push_back(limit);
+    }
+    
+    // track current jacob group
+    std::vector<int> jacob = generateJacobsthalSequence(totalPendSize);
+
+        
     for (size_t i = 0; i < insertionOrder.size(); i++)
     {
         int pendIndex = insertionOrder[i] - 1; // 0 indexing
         int value = combinedPend[pendIndex];
-        int searchRight = mainChain.size();
+        int groupIndex = 0;
         
-        // If not extra element, limit search to paired element's position
-        if (pendIndex < (int)pendChain.size()) {
-            // Find where the paired main element is
-            // Since main elements were inserted in order, the paired element
-            // for pendChain[pendIndex] should be around position pendIndex
-            searchRight = pendIndex + 1;
-            if (searchRight > (int)mainChain.size()) {
-                searchRight = mainChain.size();
+        for (size_t j = 0; j < jacob.size(); j++)
+        {
+            if (insertionOrder[i] <= jacob[j])
+            {
+                groupIndex = j;
+                break ;
             }
         }
+        int searchRight = std::min((int)mainChain.size(), searchLimits[groupIndex]);
         int pos = binarySearchVector(mainChain, value, 0, searchRight);
         mainChain.insert(mainChain.begin() + pos, value);
     }
@@ -321,6 +335,6 @@ std::vector<int> PmergeMe::createInsertionOrder(int pendSize)
             break;
     }
     for (int i = previousJacob + 1; i <= pendSize; i++)
-        insertionOrder.push_back(1);
+        insertionOrder.push_back(i);
     return (insertionOrder);
 }
