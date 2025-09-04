@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 14:22:26 by odana             #+#    #+#             */
-/*   Updated: 2025/09/02 19:29:51 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/04 16:49:16 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include <ctime>
 # include <sys/time.h>
 # include <climits>
-
+# include <algorithm>
 class PmergeMe
 {
 public:
