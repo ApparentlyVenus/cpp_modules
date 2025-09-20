@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/17 14:07:14 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/20 11:02:20 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void    PmergeMe::sort()
     _dequeComparisons = 0;
     
     double startTime = getCurrentTime();
-    fordJohnsonVector(_sortedVector);
+    sortVector(_sortedVector);
     double endTime = getCurrentTime();
     _vectorTime = endTime - startTime;
     
@@ -78,7 +78,6 @@ void    PmergeMe::sort()
     // endTime = getCurrentTime();
     // _dequeTime = endTime - startTime;
 }
-
 
 bool    PmergeMe::isValidInteger(const std::string& arg)
 {
@@ -121,83 +120,60 @@ void    PmergeMe::displayResults() const
     std::cout << "Number of comparisons for std::vector: " << _vectorComparisons << std::endl;
 }
 
-std::vector<int>    PmergeMe::generateJacobsthalSequence(int maxSize)
+std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t maxSize)
 {
-    std::vector<int>    jacobsthal;
+    std::vector<size_t> jacobsthal;
+    if (maxSize == 0) 
+        return jacobsthal;
 
-    if (maxSize <= 0)
-        return (jacobsthal);
+    jacobsthal.push_back(0);
+    if (maxSize == 1) 
+        return jacobsthal;
+
     jacobsthal.push_back(1);
-    if (maxSize == 1)
-        return (jacobsthal);
-
-    // Sequence starts with 0, 1, 1.. we have to skip the first 0 and 1
-    // Treat it as if we are starting with J(3)
-    int prev2 = 1;
-    int prev1 = 1;
-
-    while (true)
+    while (jacobsthal.back() < maxSize) 
     {
-        // Formula: J(n) = J(n -1) + 2 * J(n - 2)
-        int next = prev1 + 2 * prev2;
-        if (next > maxSize)
-            break;
+        size_t next = jacobsthal[jacobsthal.size() - 1] + 2 * jacobsthal[jacobsthal.size() - 2];
         jacobsthal.push_back(next);
-        prev2 = prev1;
-        prev1 = next;
     }
-    return (jacobsthal);
+    return jacobsthal;
 }
 
-std::vector<int> PmergeMe::createInsertionOrder(const std::vector<int>& jacob, int pendSize, bool hasExtra)
+std::vector<size_t> PmergeMe::createInsertionOrder(const std::vector<size_t>& jacobSequence, size_t pendSize)
 {
-    std::vector<int> insertionOrder;
-    std::vector<bool> used(pendSize + 2, false); // +2 to handle extra element
+    std::vector<size_t> insertionOrder;
+    std::vector<bool> used(pendSize + 1, false);
     
-    int prevJacob = 1;
-    for (size_t i = 0; i < jacob.size(); ++i)
+    for (size_t i = 0; i < jacobSequence.size(); ++i) 
     {
-        int currentJacob = jacob[i];
-        // Insert from currentJacob down to prevJacob+1 in descending order
-        for (int j = currentJacob; j > prevJacob; --j)
+        size_t x = jacobSequence[i];
+        while (x > 1 && x <= pendSize) 
         {
-            if (j <= pendSize && !used[j]) {
-                insertionOrder.push_back(j);
-                used[j] = true;
+            if (!used[x]) 
+            {
+                insertionOrder.push_back(x);
+                used[x] = true;
             }
-        }
-        prevJacob = currentJacob;
-    }
-    
-    // Add any remaining elements from 2 to pendSize that haven't been used
-    for (int j = 2; j <= pendSize; ++j) {
-        if (!used[j]) {
-            insertionOrder.push_back(j);
-            used[j] = true;
+            x--;
         }
     }
-    
-    // Add extra element position if needed
-    if (hasExtra) {
-        insertionOrder.push_back(pendSize + 1);
+
+    // Ensure all remaining indices from 2 to pendSize are included
+    for (size_t x = 2; x <= pendSize; ++x) 
+    {
+        if (!used[x]) 
+        {
+            insertionOrder.push_back(x);
+            used[x] = true;
+        }
     }
-    
-    // Debug statement to print the complete insertion order
-    std::cout << "Final insertion order: ";
-    for (size_t i = 0; i < insertionOrder.size(); ++i) {
-        std::cout << insertionOrder[i];
-        if (i < insertionOrder.size() - 1) std::cout << " ";
-    }
-    std::cout << " (pendSize=" << pendSize << ", hasExtra=" << hasExtra << ")" << std::endl;
-    
+
     return insertionOrder;
 }
-                    
 
 bool    PmergeMe::compareVector(int a, int b) 
 {
     _vectorComparisons++;
-    std::cout << "Comparison #" << _vectorComparisons << ": " << a << " < " << b << " = " << (a < b) << std::endl;
     return (a < b);
 }
 
@@ -207,178 +183,138 @@ bool    PmergeMe::compareDeque(int a, int b)
     return (a < b);
 }
 
-int PmergeMe::binarySearchVector(const std::vector<int>& container, int value, int left, int right) 
+size_t PmergeMe::binarySearchVector(const std::vector<int>& container, int value, size_t maxIndex) 
 {
-    while (left < right) 
-    {
-        int mid = left + (right - left) / 2;
-        if (compareVector(container[mid], value))
-            left = mid + 1;
-        else
-            right = mid;
-    }
-    return (left);
-}
-
-int PmergeMe::binarySearchDeque(const std::deque<int>& container, int value, int left, int right) 
-{
-    while (left < right) 
-    {
-        int mid = left + (right - left) / 2;
-        if (compareDeque(container[mid], value))
-            left = mid + 1;
-        else
-            right = mid;
-    }
-    return (left);
-}
-
-
-
-void    PmergeMe::fordJohnsonVector(std::vector<int>& container)
-{
-    if (container.size() <= 1)
-        return ;
+    if (container.empty()) 
+        return 0;
     
-    std::vector<int> mainChain, pendChain;
-    int extra = -1;
-    bool hasExtra = false;
-    createPairsVector(container, mainChain, pendChain, extra, hasExtra);
-    
-    std::vector<int> originalMainOrder = mainChain;
-    
-    fordJohnsonVector(mainChain);
-    rotatePendVector(pendChain, originalMainOrder, mainChain);
-    insertPendVector(mainChain, pendChain, extra, hasExtra);
-
-    container = mainChain;
-}
-
-void    PmergeMe::createPairsVector(const std::vector<int>& container,
-                                    std::vector<int>& mainChain,
-                                    std::vector<int>& pendChain,
-                                    int& extra, bool& hasExtra)
-{
-    mainChain.clear();
-    pendChain.clear();
-
-    hasExtra = (container.size() % 2 == 1);
-    size_t size = container.size();
-    if (hasExtra)
+    int low = 0;
+    int high = static_cast<int>(maxIndex);
+    if (high >= static_cast<int>(container.size())) 
     {
-        extra = container.back();
-        size--;
+        high = static_cast<int>(container.size()) - 1;
     }
-    for (size_t i = 0; i < size; i += 2)
+    
+    while (low <= high) 
     {
-        int first = container[i];
-        int second = container[i + 1];
+        int mid = (low + high) / 2;
         
-        if (compareVector(first, second))
+        if (compareVector(container[mid], value)) 
         {
-            mainChain.push_back(second);
-            pendChain.push_back(first);
+            low = mid + 1;
         }
         else 
         {
-            mainChain.push_back(first);
-            pendChain.push_back(second);
+            high = mid - 1;
         }
     }
+    return static_cast<size_t>(low);
 }
 
-void PmergeMe::rotatePendVector(std::vector<int>& pendChain,
-                               const std::vector<int>& originalMain,
-                               const std::vector<int>& currentMain)
+std::vector<int> PmergeMe::sortVector(std::vector<int>& data)
 {
-    if (pendChain.empty())
-        return;
-
-    std::vector<int> newPendChain(pendChain.size());
-    for (size_t currentPos = 0; currentPos < currentMain.size(); ++currentPos)
+    // Handle base cases
+    if (data.empty()) 
+        return std::vector<int>();
+    if (data.size() == 1) 
+        return data;
+    
+    if (data.size() == 2) 
     {
-        int currentElement = currentMain[currentPos];
-
-        size_t originalPos = 0;
-        for (size_t j = 0; j < originalMain.size(); j++)
+        std::vector<int> result = data;
+        if (compareVector(result[1], result[0])) 
         {
-            if (originalMain[j] == currentElement)
+            std::swap(result[0], result[1]);
+        }
+        return result;
+    }
+    
+    bool isOdd = (data.size() % 2 == 1);
+    std::vector<int> main, pend;
+    
+    // Create pairs
+    for (size_t i = 0; i < data.size() - (isOdd ? 1 : 0); i += 2) 
+    {
+        if (compareVector(data[i+1], data[i])) 
+        {
+            main.push_back(data[i]);
+            pend.push_back(data[i + 1]);
+        } 
+        else 
+        {
+            pend.push_back(data[i]);
+            main.push_back(data[i + 1]);
+        }
+    }
+    
+    // Add odd element
+    if (isOdd) 
+    {
+        pend.push_back(data.back());
+    }
+    
+    // Recursively sort main elements
+    std::vector<int> new_main = sortVector(main);
+    
+    // Rearrange pend to match main ordering
+    std::vector<int> new_pend;
+    
+    // For each element in sorted main, find its original partner in pend
+    for (size_t i = 0; i < new_main.size(); ++i) 
+    {
+        for (size_t j = 0; j < main.size(); ++j) 
+        {
+            if (main[j] == new_main[i]) 
             {
-                originalPos = j;
+                new_pend.push_back(pend[j]);
                 break;
             }
         }
-        newPendChain[currentPos] = pendChain[originalPos];
     }
-    pendChain = newPendChain;
-}
-
-
-int findCurrentPosition(const std::vector<int>& mainChain, int value)
-{
-    for (size_t i = 0; i < mainChain.size(); ++i) {
-        if (mainChain[i] == value)
-            return i;
-    }
-    return mainChain.size() - 1; // Fallback
-}
-
-void PmergeMe::insertPendVector(std::vector<int>& mainChain, std::vector<int>& pendChain,
-                               int extra, bool hasExtra)
-{
-    if (pendChain.empty()) {
-        if (hasExtra)
-            mainChain.insert(mainChain.begin(), extra);
-        return;
-    }
-
-    // Insert first element (b1 always goes first)
-    int insertPos = 0;
-    mainChain.insert(mainChain.begin(), pendChain[0]);
     
-// if (pendChain.size() == 1) {
-//     if (hasExtra) {
-//         if (compareVector(extra, mainChain[0])) {
-//             mainChain.insert(mainChain.begin(), extra);
-//         } else if (compareVector(extra, mainChain[1])) {
-//             mainChain.insert(mainChain.begin() + 1, extra);
-//         } else {
-//             mainChain.insert(mainChain.begin() + 2, extra);
-//         }
-//     }
-//     return;
-// }
-
-    std::vector<int> jacob = generateJacobsthalSequence(pendChain.size() + (hasExtra ? 1 : 0));
-    std::vector<int> insertionOrder = createInsertionOrder(jacob, pendChain.size(), hasExtra);
-
-    for (size_t i = 0; i < insertionOrder.size(); ++i)
+    // Add odd element
+    if (isOdd) 
     {
-        int insertionIndex = insertionOrder[i];
-        // Handle extra element
-    if (insertionIndex > (int)pendChain.size()) {
-        if (hasExtra) {
-            // Use bounded search for extra element - it has no pair, but limit search space
-            std::cout << "Extra element search: mainChain.size()=" << mainChain.size() << std::endl;
-            insertPos = binarySearchVector(mainChain, extra, 0, mainChain.size());
-
-            mainChain.insert(mainChain.begin() + insertPos, extra);
-            hasExtra = false;
-        }
-        continue;
+        new_pend.push_back(pend.back());
     }
-        
-        int pendIndex = insertionIndex - 1;
-        if (pendIndex >= (int)pendChain.size() || pendIndex <= 0)
-            continue;
-        
-        int elementToInsert = pendChain[pendIndex];
-        
-        int upperBound = pendIndex + i + 1;
-        if (upperBound > (int)mainChain.size())
-            upperBound = mainChain.size();
-            
-        insertPos = binarySearchVector(mainChain, elementToInsert, 0, upperBound);
-        mainChain.insert(mainChain.begin() + insertPos, elementToInsert);
+    
+    // Insert pending elements into the main chain
+    insertPendVector(new_main, new_pend);
+    
+    return new_main;
+}
+
+void PmergeMe::insertPendVector(std::vector<int>& mainChain, const std::vector<int>& pendChain)
+{
+    if (pendChain.empty()) 
+        return;
+
+    // Generate the Jacobsthal sequence and calculate the insertion order
+    std::vector<size_t> jacobSequence = generateJacobsthalSequence(pendChain.size());
+    std::vector<size_t> insertionOrder = determineInsertionOrder(jacobSequence, pendChain.size());
+
+    size_t searchLimit = 3;
+    mainChain.insert(mainChain.begin(), pendChain[0]);
+
+    for (size_t i = 0; i < insertionOrder.size(); ++i) 
+    {
+        if (i > 0 && insertionOrder[i] > insertionOrder[i - 1]) 
+        {
+            if (searchLimit <= mainChain.size() / 2) 
+                searchLimit = 2 * searchLimit + 1;
+            else 
+                searchLimit = mainChain.size();
+        }
+
+        if (insertionOrder[i] <= pendChain.size() && insertionOrder[i] != 1) 
+        {
+            size_t pendIndex = insertionOrder[i] - 1;
+            int valueToInsert = pendChain[pendIndex];
+
+            size_t maxSearchIndex = std::min(searchLimit - 1, mainChain.size());
+            size_t insertPosition = binarySearchVector(mainChain, valueToInsert, maxSearchIndex);
+
+            mainChain.insert(mainChain.begin() + insertPosition, valueToInsert);
+        }
     }
 }
