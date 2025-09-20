@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 16:16:04 by odana             #+#    #+#             */
-/*   Updated: 2025/09/20 11:02:20 by odana            ###   ########.fr       */
+/*   Updated: 2025/09/20 11:17:26 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,14 +69,14 @@ void    PmergeMe::sort()
     _dequeComparisons = 0;
     
     double startTime = getCurrentTime();
-    sortVector(_sortedVector);
+    _sortedVector = sortVector(_sortedVector);
     double endTime = getCurrentTime();
     _vectorTime = endTime - startTime;
     
-    // startTime = getCurrentTime();
-    // fordJohnsonDeque(_sortedDeque);
-    // endTime = getCurrentTime();
-    // _dequeTime = endTime - startTime;
+    startTime = getCurrentTime();
+    _sortedDeque = sortDeque(_sortedDeque);
+    endTime = getCurrentTime();
+    _dequeTime = endTime - startTime;
 }
 
 bool    PmergeMe::isValidInteger(const std::string& arg)
@@ -110,15 +110,24 @@ void    PmergeMe::displayResults() const
         std::cout << " " << _inputNumbers[i];
     std::cout << std::endl;
     
-    std::cout << "After:";
+    std::cout << "After (vector):";
     for (size_t i = 0; i < _sortedVector.size(); i++) 
         std::cout << " " << _sortedVector[i];
+    std::cout << std::endl;
+    
+    std::cout << "After (deque):";
+    for (size_t i = 0; i < _sortedDeque.size(); i++) 
+        std::cout << " " << _sortedDeque[i];
     std::cout << std::endl;
     
     std::cout << "Time to process a range of " << _inputNumbers.size() 
               << " elements with std::vector : " << _vectorTime << " us" << std::endl;
     std::cout << "Number of comparisons for std::vector: " << _vectorComparisons << std::endl;
+    std::cout << "Time to process a range of " << _inputNumbers.size() 
+              << " elements with std::deque : " << _dequeTime << " us" << std::endl;
+    std::cout << "Number of comparisons for std::deque: " << _dequeComparisons << std::endl;
 }
+
 
 std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t maxSize)
 {
@@ -191,42 +200,34 @@ size_t PmergeMe::binarySearchVector(const std::vector<int>& container, int value
     int low = 0;
     int high = static_cast<int>(maxIndex);
     if (high >= static_cast<int>(container.size())) 
-    {
         high = static_cast<int>(container.size()) - 1;
-    }
     
     while (low <= high) 
     {
         int mid = (low + high) / 2;
         
-        if (compareVector(container[mid], value)) 
-        {
+        if (compareVector(container[mid], value))
             low = mid + 1;
-        }
-        else 
-        {
+        else
             high = mid - 1;
-        }
     }
-    return static_cast<size_t>(low);
+    return (static_cast<size_t>(low));
 }
 
 std::vector<int> PmergeMe::sortVector(std::vector<int>& data)
 {
     // Handle base cases
     if (data.empty()) 
-        return std::vector<int>();
+        return (std::vector<int>());
     if (data.size() == 1) 
-        return data;
+        return (data);
     
     if (data.size() == 2) 
     {
         std::vector<int> result = data;
         if (compareVector(result[1], result[0])) 
-        {
             std::swap(result[0], result[1]);
-        }
-        return result;
+        return (result);
     }
     
     bool isOdd = (data.size() % 2 == 1);
@@ -249,24 +250,20 @@ std::vector<int> PmergeMe::sortVector(std::vector<int>& data)
     
     // Add odd element
     if (isOdd) 
-    {
         pend.push_back(data.back());
-    }
     
     // Recursively sort main elements
-    std::vector<int> new_main = sortVector(main);
+    std::vector<int> newMain = sortVector(main);
+    std::vector<int> newPend;
     
-    // Rearrange pend to match main ordering
-    std::vector<int> new_pend;
-    
-    // For each element in sorted main, find its original partner in pend
-    for (size_t i = 0; i < new_main.size(); ++i) 
+    // rotate pend vector
+    for (size_t i = 0; i < newMain.size(); ++i) 
     {
         for (size_t j = 0; j < main.size(); ++j) 
         {
-            if (main[j] == new_main[i]) 
+            if (main[j] == newMain[i]) 
             {
-                new_pend.push_back(pend[j]);
+                newPend.push_back(pend[j]);
                 break;
             }
         }
@@ -274,14 +271,12 @@ std::vector<int> PmergeMe::sortVector(std::vector<int>& data)
     
     // Add odd element
     if (isOdd) 
-    {
-        new_pend.push_back(pend.back());
-    }
+        newPend.push_back(pend.back());
     
     // Insert pending elements into the main chain
-    insertPendVector(new_main, new_pend);
+    insertPendVector(newMain, newPend);
     
-    return new_main;
+    return (newMain);
 }
 
 void PmergeMe::insertPendVector(std::vector<int>& mainChain, const std::vector<int>& pendChain)
@@ -291,7 +286,7 @@ void PmergeMe::insertPendVector(std::vector<int>& mainChain, const std::vector<i
 
     // Generate the Jacobsthal sequence and calculate the insertion order
     std::vector<size_t> jacobSequence = generateJacobsthalSequence(pendChain.size());
-    std::vector<size_t> insertionOrder = determineInsertionOrder(jacobSequence, pendChain.size());
+    std::vector<size_t> insertionOrder = createInsertionOrder(jacobSequence, pendChain.size());
 
     size_t searchLimit = 3;
     mainChain.insert(mainChain.begin(), pendChain[0]);
@@ -313,6 +308,128 @@ void PmergeMe::insertPendVector(std::vector<int>& mainChain, const std::vector<i
 
             size_t maxSearchIndex = std::min(searchLimit - 1, mainChain.size());
             size_t insertPosition = binarySearchVector(mainChain, valueToInsert, maxSearchIndex);
+
+            mainChain.insert(mainChain.begin() + insertPosition, valueToInsert);
+        }
+    }
+}
+
+size_t PmergeMe::binarySearchDeque(const std::deque<int>& container, int value, size_t maxIndex) 
+{
+    if (container.empty()) 
+        return (0);
+    
+    int low = 0;
+    int high = static_cast<int>(maxIndex);
+    if (high >= static_cast<int>(container.size())) 
+        high = static_cast<int>(container.size()) - 1;
+    
+    while (low <= high) 
+    {
+        int mid = (low + high) / 2;
+        
+        if (compareDeque(container[mid], value))
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return (static_cast<size_t>(low));
+}
+
+std::deque<int> PmergeMe::sortDeque(std::deque<int>& data)
+{
+    // Handle base cases
+    if (data.empty()) 
+        return (std::deque<int>());
+    if (data.size() == 1) 
+        return (data);
+    
+    if (data.size() == 2) 
+    {
+        std::deque<int> result = data;
+        if (compareDeque(result[1], result[0])) 
+            std::swap(result[0], result[1]);
+        return (result);
+    }
+    
+    bool isOdd = (data.size() % 2 == 1);
+    std::deque<int> main, pend;
+    
+    // Create pairs
+    for (size_t i = 0; i < data.size() - (isOdd ? 1 : 0); i += 2) 
+    {
+        if (compareDeque(data[i+1], data[i])) 
+        {
+            main.push_back(data[i]);
+            pend.push_back(data[i + 1]);
+        } 
+        else 
+        {
+            pend.push_back(data[i]);
+            main.push_back(data[i + 1]);
+        }
+    }
+    
+    // Add odd element
+    if (isOdd) 
+        pend.push_back(data.back());
+    
+    // Recursively sort main elements
+    std::deque<int> newMain = sortDeque(main);
+    std::deque<int> newPend;
+    
+    // rotate pend deque
+    for (size_t i = 0; i < newMain.size(); ++i) 
+    {
+        for (size_t j = 0; j < main.size(); ++j) 
+        {
+            if (main[j] == newMain[i]) 
+            {
+                newPend.push_back(pend[j]);
+                break;
+            }
+        }
+    }
+    
+    // Add odd element
+    if (isOdd) 
+        newPend.push_back(pend.back());
+    
+    // Insert pending elements into the main chain
+    insertPendDeque(newMain, newPend);
+    
+    return (newMain);
+}
+
+void PmergeMe::insertPendDeque(std::deque<int>& mainChain, const std::deque<int>& pendChain)
+{
+    if (pendChain.empty()) 
+        return;
+
+    // Generate the Jacobsthal sequence and calculate the insertion order
+    std::vector<size_t> jacobSequence = generateJacobsthalSequence(pendChain.size());
+    std::vector<size_t> insertionOrder = createInsertionOrder(jacobSequence, pendChain.size());
+
+    size_t searchLimit = 3;
+    mainChain.insert(mainChain.begin(), pendChain[0]);
+
+    for (size_t i = 0; i < insertionOrder.size(); ++i) 
+    {
+        if (i > 0 && insertionOrder[i] > insertionOrder[i - 1]) 
+        {
+            if (searchLimit <= mainChain.size() / 2) 
+                searchLimit = 2 * searchLimit + 1;
+            else 
+                searchLimit = mainChain.size();
+        }
+
+        if (insertionOrder[i] <= pendChain.size() && insertionOrder[i] != 1) 
+        {
+            size_t pendIndex = insertionOrder[i] - 1;
+            int valueToInsert = pendChain[pendIndex];
+
+            size_t maxSearchIndex = std::min(searchLimit - 1, mainChain.size());
+            size_t insertPosition = binarySearchDeque(mainChain, valueToInsert, maxSearchIndex);
 
             mainChain.insert(mainChain.begin() + insertPosition, valueToInsert);
         }
